@@ -23,14 +23,14 @@ pipeline {
                 echo "Installation de Node.js"
                 sh '''
                     # Mettre à jour les paquets
-                    sudo apt update && sudo apt upgrade -y
+                    apt update && apt upgrade -y
 
                     # Installer les dépendances nécessaires
-                    sudo apt install -y curl ca-certificates gnupg
+                    apt install -y curl ca-certificates gnupg
 
                     # Ajouter le référentiel Node.js et installer la version spécifiée
                     curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash -
-                    sudo apt install -y nodejs
+                    apt install -y nodejs
 
                     # Vérifier l'installation
                     node -v
@@ -51,7 +51,7 @@ pipeline {
         stage('Construire l\'application') {
             steps {
                 echo 'Construction de l\'application Angular en mode production'
-                sh 'npm run build --prod'
+                sh 'npm run build'
             }
         }
 
