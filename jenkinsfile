@@ -1,81 +1,73 @@
-pipeline  {
-    // spécifier que le pipeline peut 'executer sur n'importe quel agent
-    agent any:
+pipeline {
+    // Spécifier que le pipeline peut s'exécuter sur n'importe quel agent
+    agent any
 
-    // declarer les variables d'environnement utilisés dans le pipeline
-    environnement {
+    // Déclarer les variables d'environnement utilisées dans le pipeline
+    environment {
         GIT_REPO = "https://github.com/greg6fr/mabanque.git"
         NODE_VERSION = "20"
     }
 
-    //définir les différentes étapes (stages) de notre pipeline
     stages {
-        // Premiere etape :  Cloner notre le dépôt Github
+        // 1. Cloner le dépôt
         stage('Cloner le dépôt') {
-
-            // definir les steps : les differentes commandes executer
             steps {
-                echo "Clonage du dépot Github"
-                git branch: 'main', url: "${GIT_REPO}" //Cloner la branche main
-
+                echo "Clonage du dépôt Github"
+                git branch: 'main', url: "${GIT_REPO}"
             }
         }
 
-         // Deuxième etape :  Installer la version de Node.js requis pour le projet
-         stage('Installer Node.js') {
+        // 2. Installer Node.js
+        stage('Installer Node.js') {
             steps {
                 echo "Installation de Node.js"
-                sh """
-                // Mettre à jour les paquets
-                sudo apt update && sudo apt upgrade -y
+                sh '''
+                    # Mettre à jour les paquets
+                    sudo apt update && sudo apt upgrade -y
 
-                // Installer les dépendances nécessaires
-                sudo apt install -y curl ca-certificates gnupg
+                    # Installer les dépendances nécessaires
+                    sudo apt install -y curl ca-certificates gnupg
 
-                // Ajouter le réferentiel Node.js et installer la version spécifiée (Node.js 20 (LTS))
-                // curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-                curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash -
+                    # Ajouter le référentiel Node.js et installer la version spécifiée
+                    curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash -
+                    sudo apt install -y nodejs
 
-                // Installer Node.js
-                sudo apt install -y nodejs
-
-                // Vérifier l'installation
-                node -v
-                npm -v
-
-                """
+                    # Vérifier l'installation
+                    node -v
+                    npm -v
+                '''
             }
-         }
-        // Troisième etape :  Installer les dépendances de notre projet
+        }
+
+        // 3. Installer les dépendances Angular
         stage('Installer les dépendances Angular') {
             steps {
-                echo 'Installation des dépendances de notre projet Angular'
+                echo 'Installation des dépendances Angular'
                 sh 'npm install'
             }
         }
-        // Quatrième etape :  Construire l'application Angular
+
+        // 4. Construire l'application
         stage('Construire l\'application') {
             steps {
-                echo 'Construction de l\'application'
-                sh 'npm run build --prod' // Compile et Construit l'application en mode production
+                echo 'Construction de l\'application Angular en mode production'
+                sh 'npm run build --prod'
             }
-            }
+        }
 
-        // Cinquième etape :  Afficher les fichiers générés après la construction
+        // 5. Afficher les fichiers générés
         stage('Afficher les fichiers générés') {
             steps {
-                echo 'Liste de fichiers générés dans le dossier dist/mabanque'
+                echo 'Liste des fichiers générés dans le dossier dist/mabanque'
                 sh 'ls -al dist/mabanque'
             }
         }
+    }
 
-     }
-    // Actions à effectuer une fois le pipeline terminé
-
-        post {
-            always{
-                echo ' Pipeline terminé.'
-            }
+    // Étapes post-pipeline
+    post {
+        always {
+            echo 'Pipeline terminé.'
         }
-
+    }
 }
