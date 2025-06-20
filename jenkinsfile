@@ -17,29 +17,9 @@ pipeline {
             }
         }
 
-        // 2. Installer Node.js
-        stage('Installer Node.js') {
-            steps {
-                echo "Installation de Node.js"
-                sh '''
-                    # Mettre à jour les paquets
-                    apt update && apt upgrade -y
 
-                    # Installer les dépendances nécessaires
-                    apt install -y curl ca-certificates gnupg
 
-                    # Ajouter le référentiel Node.js et installer la version spécifiée
-                    curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash -
-                    apt install -y nodejs
-
-                    # Vérifier l'installation
-                    node -v
-                    npm -v
-                '''
-            }
-        }
-
-        // 3. Installer les dépendances Angular
+        // 2. Installer les dépendances Angular
         stage('Installer les dépendances Angular') {
             steps {
                 echo 'Installation des dépendances Angular'
@@ -47,7 +27,7 @@ pipeline {
             }
         }
 
-        // 4. Construire l'application
+        // 3. Construire l'application
         stage('Construire l\'application') {
             steps {
                 echo 'Construction de l\'application Angular en mode production'
@@ -55,7 +35,7 @@ pipeline {
             }
         }
 
-        // 5. Afficher les fichiers générés
+        // 4. Afficher les fichiers générés
         stage('Afficher les fichiers générés') {
             steps {
                 echo 'Liste des fichiers générés dans le dossier dist/mabanque'
