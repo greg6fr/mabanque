@@ -12,7 +12,7 @@ pipeline  {
 
     //définir les différentes étapes (stages) de notre pipeline
     stages {
-        // Premiere etape :  Cloner notre le dépôt Github
+        // Premiere etape :  Cloner notre le dépôt Github 
         stage('Cloner le dépôt') {
 
             // definir les steps : les differentes commandes executer
