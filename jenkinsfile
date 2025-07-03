@@ -45,7 +45,10 @@ pipeline {
             steps {
                 echo '🏗️ Construction de l\'application Angular'
                 timeout(time: 10, unit: 'MINUTES') {
-                    sh 'npm run build --prod'
+                   // sh 'npm run build --prod'
+                    sh 'npm ci --omit=dev'
+sh 'npm run build -- --configuration=production'
+
                 }
             }
         }
