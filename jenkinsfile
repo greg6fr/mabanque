@@ -26,7 +26,7 @@ pipeline  {
          // Deuxième etape :  Verification des dependances
          stage('Verification les versions de nodejs et npm') {
             steps {
-                echo "Verifier les versions de nodejs et npm"
+                echo "Verifier les versions de nodejs et npm "
                 sh """
                 node -v
                 npm -v
@@ -42,7 +42,14 @@ pipeline  {
             }
         }
 
+        // Exécution des tests
 
+        stage('Exécuter les tests') {
+            steps {
+                echo 'Exécution des tests unitaires Angular'
+                sh 'npm run test -- --watch=false --browsers=ChromeHeadless'
+            }
+        }
 
         // Quatrième etape :  Construire l'application Angular
         stage('Construire l\'application') {
