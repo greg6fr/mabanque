@@ -128,17 +128,16 @@ pipeline  {
                     message: buildMessage
                 )
             }
-
-                success {
-        mail to: 'greg6fr@gmail.com',
-             subject: "✅ Build Success: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-             body: "Le build a réussi : ${env.BUILD_URL}"
-    }
-    failure {
-        mail to: 'greg6fr@gmail.com',
-             subject: "❌ Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-             body: "Le build a échoué. Voir les logs : ${env.BUILD_URL}"
-    }
+        }
+        success {
+            mail to: 'greg6fr@gmail.com',
+                subject: "✅ Build Success: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Le build a réussi : ${env.BUILD_URL}"
+        }
+        failure {
+            mail to: 'greg6fr@gmail.com',
+                subject: "❌ Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Le build a échoué. Voir les logs : ${env.BUILD_URL}"
         }
     }
 
