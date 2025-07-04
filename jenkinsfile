@@ -6,6 +6,8 @@ pipeline {
         DOCKER_IMAGE = "96622564/mabanque"
         DOCKER_TAG = "latest"
         DOCKER_CREDENTIALS_ID = "docker-hub-credentials"
+        DOCKER_USERNAME = "96622564"
+
     }
 
     stages {
