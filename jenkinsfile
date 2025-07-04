@@ -1,3 +1,14 @@
+def COLORS_MAP = [
+    'SUCCESS': 'good',
+    'FAILURE': 'danger',
+    'UNSTABLE': 'warning'
+]
+
+def buildStatus = currentBuild.currentResult ?: 'SUCCESS'
+def buildColor = COLORS_MAP.get(buildStatus, 'warning')
+def buildMessage = "${buildStatus} - ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+
+
 pipeline  {
     // spécifier que le pipeline peut 'executer sur n'importe quel agent
     agent any
