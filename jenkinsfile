@@ -37,18 +37,16 @@ pipeline {
         stage('Exécuter les tests') {
             steps {
                 echo '🧪 Exécution des tests unitaires Angular'
-                sh 'npm run test -- --watch=false --browsers=ChromeHeadless'
+                sh './node_modules/.bin/ng test --watch=false --browsers=ChromeHeadless'
             }
         }
 
         stage('Construire l\'application') {
             steps {
                 echo '🏗️ Construction de l\'application Angular'
-                timeout(time: 10, unit: 'MINUTES') {
-                   // sh 'npm run build --prod'
+                timeout(time: 15, unit: 'MINUTES') {
                     sh 'npm ci --omit=dev'
-sh 'npm run build -- --configuration=production'
-
+                    sh './node_modules/.bin/ng build --configuration=production'
                 }
             }
         }
