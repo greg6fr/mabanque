@@ -43,3 +43,5 @@ Thumbs.db
 # Docker credentials
 credential-docker.txt
 
+# Password Gmail token
+passwordGmail.txt

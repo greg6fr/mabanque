@@ -1,110 +1,123 @@
-pipeline {
+pipeline  {
+    // spécifier que le pipeline peut 'executer sur n'importe quel agent
     agent any
 
+    // declarer les variables d'environnement utilisés dans le pipeline
     environment {
         GIT_REPO = "https://github.com/greg6fr/mabanque.git"
         DOCKER_IMAGE = "96622564/mabanque"
         DOCKER_TAG = "latest"
         DOCKER_CREDENTIALS_ID = "docker-hub-credentials"
-        DOCKER_USERNAME = "96622564"
-
     }
 
+    //définir les différentes étapes (stages) de notre pipeline
     stages {
-
+        // Premiere etape :  Cloner notre le dépôt Github
         stage('Cloner le dépôt') {
+
+            // definir les steps : les differentes commandes executer
             steps {
-                echo "📥 Clonage du dépôt GitHub"
-                git branch: 'main', url: "${GIT_REPO}"
+                echo "Clonage du dépot Github"
+                git branch: 'main', url: "${GIT_REPO}" //Cloner la branche main
+
             }
         }
 
-        stage('Vérification des versions') {
+         // Deuxième etape :  Verification des dependances
+         stage('Verification les versions de nodejs et npm') {
             steps {
-                echo "🧪 Vérification des versions de Node.js et npm"
-                sh '''
-                    node -v
-                    npm -v
-                '''
-            }
-        }
+                echo "Verifier les versions de nodejs et npm "
+                sh """
+                node -v
+                npm -v
 
-        stage('Installation des dépendances Angular') {
+                """
+            }
+         }
+        // Troisième etape :  Installer les dépendances de notre projet
+        stage('Installer les dépendances Angular') {
             steps {
-                echo '📦 Installation des dépendances'
+                echo 'Installation des dépendances de notre projet Angular'
                 sh 'npm install'
             }
         }
 
+        // Exécution des tests
+
         stage('Exécuter les tests') {
             steps {
-                echo '🧪 Exécution des tests unitaires Angular'
-                sh './node_modules/.bin/ng test --watch=false --browsers=ChromeHeadless'
+                echo 'Exécution des tests unitaires Angular'
+                sh 'npm run test -- --watch=false --browsers=ChromeHeadless'
             }
         }
 
+        // Quatrième etape :  Construire l'application Angular
         stage('Construire l\'application') {
             steps {
-                echo '🏗️ Construction de l\'application Angular'
-                timeout(time: 15, unit: 'MINUTES') {
-                  //  sh 'npm ci --omit=dev'
-                  sh 'npm ci'
-                    sh './node_modules/.bin/ng build --configuration=production'
-                }
+                echo 'Construction de l\'application'
+                sh 'npm run build --prod' // Compile et Construit l'application en mode production
             }
-        }
+            }
 
+        // Cinquième etape :  Afficher les fichiers générés après la construction
         stage('Afficher les fichiers générés') {
             steps {
-                echo '📂 Liste des fichiers générés dans dist/mabanque'
-                sh '''
-                    if [ -d dist/mabanque ]; then
-                        ls -al dist/mabanque
-                    else
-                        echo "Le dossier dist/mabanque est introuvable"
-                        exit 1
-                    fi
-                '''
+                echo 'Liste de fichiers générés dans le dossier dist/mabanque'
+                sh 'ls -al dist/mabanque'
             }
         }
 
+        // Sixième etape :  Construire l'image Docker
         stage('Construire l\'image Docker') {
             steps {
-                echo '🐳 Construction de l\'image Docker'
+                echo 'Construction de l\'image Docker'
                 sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
             }
         }
 
+        // Septième etape :  Authentification Docker
         stage('Authentification Docker') {
             steps {
-                echo '🔐 Authentification Docker Hub'
+                echo 'Authentification Docker'
                 withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                   // sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
                     sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
                 }
             }
         }
 
-        stage('Push de l\'image Docker') {
+        // Septième etape :  Push l'image Docker
+        stage('Push l\'image Docker') {
             steps {
-                echo '📤 Push de l\'image Docker'
+                echo 'Push de l\'image Docker'
                 sh 'docker push ${DOCKER_IMAGE}:${DOCKER_TAG}'
             }
         }
 
-        stage('Nettoyage') {
+        // Clean up
+        stage('Clean up') {
             steps {
-                echo '🧹 Suppression de l\'image Docker locale'
-                sh 'docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true'
+                echo 'Suppression de l\'image Docker'
+                sh 'docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG}'
+            }
+        }
+
+
+
+
+     }
+    // Actions à effectuer une fois le pipeline terminé
+
+           post {
+        always {
+            script {
+                slackSend(
+                    channel: '#jenkins-notifier',
+                    color: buildColor,
+                    message: buildMessage
+                )
             }
         }
     }
 
-    post {
-        always {
-            echo '✅ Pipeline terminé.'
-        }
-        failure {
-            echo '❌ Une erreur est survenue pendant le pipeline.'
-        }
-    }
 }
